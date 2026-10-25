@@ -1,0 +1,47 @@
+{
+  "name": "مهامي برو - إدارة المهام الذكية",
+  "short_name": "مهامي برو",
+  "description": "تطبيق احترافي متكامل لإدارة المهام مع إشعارات فورية فوق الشاشة (Heads-Up Notifications)، مؤقت بومودورو، إحصائيات متقدمة، تقويم، ونظام إنجازات.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#090D16",
+  "theme_color": "#4F46E5",
+  "dir": "rtl",
+  "lang": "ar",
+  "orientation": "portrait",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "إضافة مهمة جديدة",
+      "short_name": "مهمة جديدة",
+      "url": "/?action=new"
+    }
+  ]
+}

@@ -1,0 +1,553 @@
+
+
+```text
+أنت مطوّر Flutter محترف بخبرة 10+ سنوات. مطلوب منك بناء تطبيق كامل 
+لإدارة المهام (Task Management App) من الصفر، بكود حقيقي جاهز للتشغيل 
+وليس pseudocode أو هيكل مبدئي.
+
+═══════════════════════════════════════════════════════════
+⚠️ قواعد صارمة يجب الالتزام بها
+═══════════════════════════════════════════════════════════
+1. اكتب كود Dart/Flutter كامل 100% لكل ملف بدون أي اختصارات.
+2. لا تكتب "..." أو "// TODO" أو "// add code here" — اكتب التنفيذ الفعلي.
+3. كل ملف يجب أن يكون قابلاً للنسخ والتشغيل مباشرة.
+4. الترتيب: pubspec.yaml → main.dart → app.dart → models → 
+   services → providers → widgets → screens.
+5. بعد كل ملف اكتب: "✅ انتهى ملف X — قل (كمّل) للملف التالي".
+6. استخدم Flutter 3.24+ ومكتبات حديثة مستقرة.
+7. الكود يجب أن يـ compile بدون أخطاء.
+8. اكتب تعليقات عربية مختصرة فوق الدوال المهمة.
+
+═══════════════════════════════════════════════════════════
+🚨🚨 أهم متطلب في التطبيق (لا تتنازل عنه أبداً) 🚨🚨
+═══════════════════════════════════════════════════════════
+الإشعارات يجب أن تكون من نوع "Heads-Up / Banner"
+أي تظهر فوق الشاشة مثل رسالة SMS أو واتساب تماماً، وليس فقط في 
+شريط الإشعارات.
+
+يجب أن:
+- تظهر فوق الشاشة فوراً حتى لو المستخدم داخل تطبيق آخر
+- تنير الشاشة لو مقفولة (Wake up screen)
+- تحتوي على أزرار تفاعلية [تم ✅] [تأجيل ⏰] [فتح]
+- تصدر صوت + اهتزاز
+- تختفي تلقائياً بعد ثوانٍ أو عند التفاعل
+
+───────────────────────────────────────────
+🛠️ التنفيذ التقني على Android (إلزامي)
+───────────────────────────────────────────
+
+1) إنشاء القناة (Channel) بأعلى أهمية:
+```dart
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'high_importance_channel',
+  'مهام مهمة',
+  description: 'إشعارات المهام العاجلة',
+  importance: Importance.max,
+  playSound: true,
+  enableVibration: true,
+  enableLights: true,
+  showBadge: true,
+  ledColor: Colors.red,
+);
+```
+
+2) تفاصيل الإشعار (AndroidNotificationDetails):
+
+```dart
+AndroidNotificationDetails(
+  'high_importance_channel',
+  'مهام مهمة',
+  channelDescription: 'إشعارات المهام',
+  importance: Importance.max,
+  priority: Priority.high,
+  fullScreenIntent: true,
+  category: AndroidNotificationCategory.reminder,
+  visibility: NotificationVisibility.public,
+  ticker: 'مهمة جديدة',
+  playSound: true,
+  enableVibration: true,
+  audioAttributesUsage: AudioAttributesUsage.notification,
+  styleInformation: BigTextStyleInformation(''),
+  actions: [
+    AndroidNotificationAction('complete', 'تم ✅',
+      showsUserInterface: true, cancelNotification: true),
+    AndroidNotificationAction('snooze', 'تأجيل ⏰',
+      showsUserInterface: true, cancelNotification: true),
+    AndroidNotificationAction('open', 'فتح',
+      showsUserInterface: true, cancelNotification: true),
+  ],
+)
+```
+
+3) صلاحيات AndroidManifest.xml (إلزامية):
+
+```xml
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+<uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+<uses-permission android:name="android.permission.VIBRATE"/>
+<uses-permission android:name="android.permission.WAKE_LOCK"/>
+<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+<uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+```
+
+4) داخل <application> في AndroidManifest:
+
+```xml
+<receiver android:exported="false"
+    android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+<receiver android:exported="false"
+    android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+    <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED"/>
+        <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+        <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+        <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+    </intent-filter>
+</receiver>
+```
+
+───────────────────────────────────────────
+🛠️ التنفيذ التقني على iOS (إلزامي)
+───────────────────────────────────────────
+
+1) في Info.plist:
+
+```xml
+<key>UIBackgroundModes</key>
+<array>
+  <string>fetch</string>
+  <string>remote-notification</string>
+</array>
+```
+
+2) في DarwinNotificationDetails:
+
+```dart
+DarwinNotificationDetails(
+  presentAlert: true,
+  presentBadge: true,
+  presentSound: true,
+  presentBanner: true,
+  presentList: true,
+  interruptionLevel: InterruptionLevel.timeSensitive,
+  sound: 'default',
+)
+```
+
+3) في AppDelegate.swift:
+
+```swift
+UNUserNotificationCenter.current().delegate = self
+
+// في didReceive:
+completionHandler([.banner, .sound, .badge, .list])
+```
+
+───────────────────────────────────────────
+🔔 أنواع الإشعارات المطلوبة (كلها Heads-Up)
+───────────────────────────────────────────
+
+1. إشعار موعد المهمة:
+   العنوان: "🔔 موعد المهمة!"
+   المحتوى: '"اسم المهمة" حان وقتها الآن'
+   الأزرار: [تم ✅] [تأجيل ⏰] [فتح]
+2. إشعار الخروج من التطبيق (WidgetsBindingObserver):
+   العنوان: "💪 لديك X مهام لم تكتمل"
+   المحتوى: أسماء المهام
+   الأزرار: [فتح] [ذكرني بعد 10 د]
+3. إشعار التأجيل:
+   العنوان: "⏰ تم تأجيل المهمة"
+   المحتوى: "سيظهر تذكير بعد X دقيقة"
+4. إشعار المهام المتأخرة:
+   العنوان: "⚠️ مهمة فات موعدها!"
+   المحتوى: '"اسم المهمة" كان يجب إنجازها منذ X'
+   الأزرار: [تم] [تأجيل] [حذف]
+5. إشعار Streak:
+   العنوان: "🔥 X أيام متتالية!"
+   المحتوى: "أكمل مهامك للحفاظ على الـ Streak"
+6. إشعار صباحي:
+   العنوان: "☀️ صباح الخير!"
+   المحتوى: "لديك X مهام اليوم، ابدأ بأهمها"
+7. إشعار مسائي:
+   العنوان: "🌙 مراجعة اليوم"
+   المحتوى: "أنجزت X من Y مهام، أحسنت!"
+
+═══════════════════════════════════════════════════════════
+🎯 المواصفات التقنية
+═══════════════════════════════════════════════════════════
+
+· Framework: Flutter 3.24+ (Dart 3.5+)
+· State Management: Riverpod 2.5.1
+· Database: Hive (محلي) + Firebase Firestore (اختياري للمزامنة)
+· Notifications: flutter_local_notifications 17.2.2 + timezone
+· Charts: fl_chart 0.68.0
+· Animations: flutter_animate + lottie
+· Architecture: Clean Architecture (data / domain / presentation)
+· Theme: Material 3 + Dark Mode + Dynamic Color
+· Locale: عربي RTL 100% + إنجليزي
+
+═══════════════════════════════════════════════════════════
+📱 الميزات الكاملة المطلوبة
+═══════════════════════════════════════════════════════════
+
+▸ 1) إدارة المهام (CRUD كامل)
+
+· إضافة مهمة: عنوان، وصف، تاريخ، وقت، أولوية، تصنيف، 
+  Tags، Subtasks، ملاحظات، مرفقات، موقع
+· تعديل، حذف مع Undo، أرشفة
+· تصنيفات: عمل / شخصي / دراسة / صحة / تسوق / أخرى
+· أولويات: عالية 🔴 / متوسطة 🟡 / منخفضة 🟢
+· بحث فوري + فلترة متقدمة + ترتيب
+· Swipe Actions: يمين = إتمام، يسار = حذف/تأجيل
+
+▸ 2) أزرار التحكم داخل كل كارت مهمة (بدون فتح التفاصيل)
+
+· ✅ زر "تم" — يعلّم كمكتملة + Haptic + Animation
+· ⏸️ زر "إيقاف" — يوقف التذكيرات مؤقتاً
+· ⏰ زر "تأجيل" — يفتح BottomSheet فيه:
+  · 5د / 15د / 30د / ساعة / 3س / يوم / أسبوع
+  · خيار "وقت مخصص" (TimePicker + DatePicker)
+  · بعد التأجيل: إلغاء الإشعار القديم + جدولة جديد + 
+    تحديث DB + SnackBar تأكيد
+· 🔔 زر "تذكير فوري"
+· ✏️ تعديل + 🗑️ حذف + 📊 تفاصيل
+
+▸ 3) زر الإشعارات في الـ AppBar
+
+· Badge ديناميكي يعرض عدد الإشعارات غير المقروءة
+· يفتح شاشة سجل كامل
+· فلترة: الكل / غير مقروء / اليوم
+· زر "مسح الكل"
+
+▸ 4) الشاشات الكاملة
+
+1. Splash Screen مع animation
+2. Onboarding (3 صفحات)
+3. الرئيسية: إحصائيات + قائمة + FAB + BottomNav
+4. إضافة/تعديل مهمة (فورم مع Validation)
+5. تفاصيل المهمة
+6. الإشعارات (سجل)
+7. الإحصائيات (رسوم بيانية)
+8. التقويم (Calendar View)
+9. الإعدادات
+10. الملف الشخصي + Streak + Achievements
+
+▸ 5) الميزات الإضافية (20 فكرة)
+
+1. 🔥 Streak Counter
+2. 🏆 Achievements/Badges
+3. 📊 إحصائيات أسبوعية/شهرية
+4. 🎯 أهداف يومية
+5. 🏷️ Tags قابلة للتخصيص
+6. ⭐ مهام مفضلة
+7. 🔁 مهام متكررة (يومي/أسبوعي/شهري)
+8. ⏱️ Pomodoro Timer مدمج
+9. 📝 ملاحظات Markdown
+10. 📎 مرفقات (صور/ملفات)
+11. ☁️ مزامنة Firebase
+12. 🎨 ثيمات قابلة للتخصيص + Dynamic Color
+13. 🔒 قفل PIN/Biometric
+14. 🎵 أصوات إشعارات مخصصة
+15. 📤 تصدير/استيراد JSON/CSV/PDF
+16. 📅 Google Calendar Sync
+17. 🧩 Home Screen Widgets
+18. 🌙 Focus Mode
+19. 👥 مشاركة المهام
+20. 🎮 Gamification (XP + مستويات)
+
+▸ 6) تجربة المستخدم
+
+· Animations سلسة + Hero transitions
+· Haptic Feedback على كل زر
+· Empty States مع Lottie
+· Loading Skeletons (Shimmer)
+· Pull to Refresh
+· Responsive + Accessibility
+· خط Cairo/Tajawal عربي
+
+═══════════════════════════════════════════════════════════
+📦 المكتبات (pubspec.yaml كامل)
+═══════════════════════════════════════════════════════════
+
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^2.5.1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  flutter_local_notifications: ^17.2.2
+  timezone: ^0.9.4
+  fl_chart: ^0.68.0
+  flutter_animate: ^4.5.0
+  lottie: ^3.1.2
+  shared_preferences: ^2.3.2
+  intl: ^0.19.0
+  permission_handler: ^11.3.1
+  image_picker: ^1.1.2
+  file_picker: ^8.1.2
+  path_provider: ^2.1.4
+  table_calendar: ^3.1.2
+  local_auth: ^2.3.0
+  google_fonts: ^6.2.1
+  flutter_slidable: ^3.1.1
+  shimmer: ^3.0.0
+  share_plus: ^10.0.2
+  pdf: ^3.11.1
+  printing: ^5.13.2
+  uuid: ^4.4.2
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.11
+  hive_generator: ^2.0.1
+```
+
+═══════════════════════════════════════════════════════════
+📁 هيكل المشروع الكامل
+═══════════════════════════════════════════════════════════
+
+```
+lib/
+├── main.dart
+├── app.dart
+├── core/
+│   ├── constants/
+│   │   ├── app_colors.dart
+│   │   ├── app_strings.dart
+│   │   └── app_constants.dart
+│   ├── theme/
+│   │   ├── app_theme.dart
+│   │   └── theme_provider.dart
+│   └── utils/
+│       ├── date_utils.dart
+│       └── validation.dart
+├── data/
+│   ├── models/
+│   │   ├── task_model.dart
+│   │   ├── category_model.dart
+│   │   ├── notification_model.dart
+│   │   ├── achievement_model.dart
+│   │   └── user_stats_model.dart
+│   ├── repositories/
+│   │   ├── task_repository.dart
+│   │   ├── notification_repository.dart
+│   │   └── stats_repository.dart
+│   └── datasources/
+│       └── local_datasource.dart
+├── domain/
+│   └── usecases/
+│       ├── create_task.dart
+│       ├── complete_task.dart
+│       ├── snooze_task.dart
+│       └── get_stats.dart
+├── presentation/
+│   ├── providers/
+│   │   ├── task_provider.dart
+│   │   ├── notification_provider.dart
+│   │   ├── theme_provider.dart
+│   │   ├── stats_provider.dart
+│   │   └── app_lifecycle_provider.dart
+│   ├── screens/
+│   │   ├── splash_screen.dart
+│   │   ├── onboarding_screen.dart
+│   │   ├── home_screen.dart
+│   │   ├── add_task_screen.dart
+│   │   ├── task_details_screen.dart
+│   │   ├── notifications_screen.dart
+│   │   ├── statistics_screen.dart
+│   │   ├── calendar_screen.dart
+│   │   ├── settings_screen.dart
+│   │   └── profile_screen.dart
+│   └── widgets/
+│       ├── task_card.dart
+│       ├── task_actions_buttons.dart
+│       ├── snooze_bottom_sheet.dart
+│       ├── stats_card.dart
+│       ├── empty_state.dart
+│       ├── notifications_badge.dart
+│       ├── streak_widget.dart
+│       ├── pomodoro_timer.dart
+│       └── category_chip.dart
+└── services/
+    ├── notification_service.dart
+    ├── notification_permission_service.dart
+    ├── app_lifecycle_service.dart
+    ├── storage_service.dart
+    ├── auth_service.dart
+    ├── backup_service.dart
+    └── pomodoro_service.dart
+```
+
+═══════════════════════════════════════════════════════════
+🚨 نقاط تقنية حرجة — كود مرجعي
+═══════════════════════════════════════════════════════════
+
+▸ NotificationService — الهيكل الإلزامي:
+
+```dart
+class NotificationService {
+  static final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
+  
+  Future<void> init() async {
+    // 1. إنشاء القناة بـ Importance.max
+    // 2. طلب الصلاحيات
+    // 3. إعداد timezone
+    // 4. تعيين onDidReceiveNotificationResponse
+    // 5. تعيين onDidReceiveBackgroundNotificationResponse
+  }
+  
+  Future<void> showHeadsUpNotification({
+    required int id,
+    required String title,
+    required String body,
+    String? payload,
+    List<AndroidNotificationAction>? actions,
+  }) async {
+    // importance: max + priority: high + fullScreenIntent: true
+  }
+  
+  Future<void> scheduleTaskReminder(Task task) async {
+    // zonedSchedule + AndroidScheduleMode.exactAllowWhileIdle
+  }
+  
+  Future<void> cancelNotification(int id) async {}
+  
+  Future<void> snoozeTask(Task task, Duration duration) async {
+    // إلغاء الإشعار القديم + جدولة جديد + تحديث DB
+  }
+}
+```
+
+▸ NotificationPermissionService — يجب أن يحتوي:
+
+```dart
+class NotificationPermissionService {
+  Future<bool> requestAllPermissions() async {
+    // طلب POST_NOTIFICATIONS
+    // طلب SCHEDULE_EXACT_ALARM
+    // طلب USE_FULL_SCREEN_INTENT
+    // فحص تفعيل "Pop on screen" للقناة
+    // فتح الإعدادات لو غير مفعل
+  }
+  
+  Future<void> openNotificationChannelSettings() async {
+    // فتح إعدادات القناة برمجياً
+  }
+}
+```
+
+▸ AppLifecycleService — كود كامل:
+
+```dart
+class AppLifecycleService with WidgetsBindingObserver {
+  final TaskRepository _taskRepo;
+  final NotificationService _notif;
+  
+  AppLifecycleService(this._taskRepo, this._notif) {
+    WidgetsBinding.instance.addObserver(this);
+  }
+  
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      _notifyIncompleteTasks();
+    }
+  }
+  
+  Future<void> _notifyIncompleteTasks() async {
+    final incomplete = await _taskRepo.getIncompleteTasksForToday();
+    if (incomplete.isNotEmpty) {
+      await _notif.showHeadsUpNotification(
+        id: 999,
+        title: 'لديك ${incomplete.length} مهام لم تكتمل 💪',
+        body: 'لا تنسَ إنجاز مهامك اليوم!',
+      );
+    }
+  }
+  
+  void dispose() => WidgetsBinding.instance.removeObserver(this);
+}
+```
+
+▸ snoozeTask — كود كامل:
+
+```dart
+Future<void> snoozeTask(Task task, Duration duration) async {
+  final newTime = DateTime.now().add(duration);
+  await _notif.cancelNotification(task.notificationId);
+  final updatedTask = task.copyWith(
+    dueDate: newTime,
+    isSnoozed: true,
+    snoozeCount: task.snoozeCount + 1,
+  );
+  await _notif.scheduleTaskReminder(updatedTask);
+  await _taskRepo.updateTask(updatedTask);
+  // إظهار SnackBar + HapticFeedback.mediumImpact()
+}
+```
+
+▸ معالجة أزرار الإشعار:
+
+```dart
+void _handleNotificationResponse(NotificationResponse response) {
+  final taskId = response.payload;
+  if (taskId == null) return;
+  switch (response.actionId) {
+    case 'complete':
+      _completeTask(taskId);
+      break;
+    case 'snooze':
+      _snoozeTask(taskId, const Duration(minutes: 15));
+      break;
+    case 'open':
+      _openTaskDetails(taskId);
+      break;
+  }
+}
+```
+
+▸ شاشة Settings — أزرار إلزامية:
+
+· زر "اختبار إشعار فوق الشاشة" (يشغّل Heads-Up فوراً)
+· زر "فتح إعدادات الإشعارات"
+· مؤشر حالة: ✅ مفعلة / ⚠️ محتاج تفعيل
+· تعليمات مصورة لو الإشعارات مش شغالة
+
+═══════════════════════════════════════════════════════════
+▶️ خطة التسليم بالترتيب
+═══════════════════════════════════════════════════════════
+
+1. pubspec.yaml كامل + main.dart + app.dart أساسي يشتغل
+2. Models كاملة (Task, Category, Notification, Achievement, Stats)
+3. notification_service.dart كامل (أهم ملف — لا تختصره)
+4. notification_permission_service.dart كامل
+5. app_lifecycle_service.dart
+6. Providers (task, notification, theme, stats, lifecycle)
+7. Widgets (task_card + action buttons + snooze bottom sheet)
+8. Screens واحدة واحدة
+9. الميزات المتقدمة (Pomodoro, Achievements, Stats)
+10. README كامل + AndroidManifest.xml + Info.plist + 
+    خطوات تفعيل Heads-Up Notifications بالتفصيل
+
+═══════════════════════════════════════════════════════════
+▶️ ابدأ الآن
+═══════════════════════════════════════════════════════════
+الخطوة الأولى: اعرض لي pubspec.yaml الكامل، ثم اسألني 
+"أكمل لـ main.dart؟"
+
+تذكّر دائماً:
+🔴 كود حقيقي كامل بدون اختصارات
+🔴 الإشعارات Heads-Up (فوق الشاشة) هي الأولوية القصوى
+🔴 لا تختصر notification_service.dart أبداً
+🔴 كل ملف يجب أن يـ compile ويعمل منفرداً
+
+*

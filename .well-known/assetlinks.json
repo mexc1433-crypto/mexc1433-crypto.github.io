@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.mahami.pro",
+    "sha256_cert_fingerprints": ["07aed56350feffe01720f5ac492abce30d2102a76ee447e48418d6e7539ce3b8"]
+  }
+}]
