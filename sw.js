@@ -1,5 +1,5 @@
 /* مهامي برو - Service Worker (PWA + Push Notifications) */
-const CACHE_NAME = 'mahami-pro-v1';
+const CACHE_NAME = 'mahami-pro-v2';
 const PRECACHE = ['/', '/manifest.json', '/icons/icon-192.png', '/icons/icon-512.png'];
 
 self.addEventListener('install', (event) => {
