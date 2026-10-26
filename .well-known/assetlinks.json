@@ -1,8 +1,15 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "app.mahami.pro",
-    "sha256_cert_fingerprints": ["07aed56350feffe01720f5ac492abce30d2102a76ee447e48418d6e7539ce3b8"]
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.mahami.pro",
+      "sha256_cert_fingerprints": [
+        "07:AE:D5:63:50:FE:FF:E0:17:20:F5:AC:49:2A:BC:E3:0D:21:02:A7:6E:E4:47:E4:84:18:D6:E7:53:9C:E3:B8",
+        "07aed56350feffe01720f5ac492abce30d2102a76ee447e48418d6e7539ce3b8"
+      ]
+    }
   }
-}]
+]
